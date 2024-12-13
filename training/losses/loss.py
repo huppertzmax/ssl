@@ -2,6 +2,7 @@ from training.losses.gamma_loss import gamma_loss
 from training.losses.spectral_loss import spectral_loss
 from training.losses.acos_kernel_loss import acos_kernel_loss
 from training.losses.nt_xent_loss import nt_xent_loss
+from training.losses.spectral_contrastive_loss import spectral_contrastive_loss
 
 def loss(out_1, out_2, temperature, gamma, gamma_lambd, distance_p, loss_type, acos_order, feat_dim):
     if acos_order > 0:
@@ -25,6 +26,8 @@ def loss(out_1, out_2, temperature, gamma, gamma_lambd, distance_p, loss_type, a
             loss = spectral_loss(out_1=out_1, out_2=out_2)
         elif loss_type == "nt_xent":
             loss = nt_xent_loss(out_1=out_1, out_2=out_2, temperature=temperature)
+        elif loss_type == "spectral_contrastive":
+            loss = spectral_contrastive_loss(out_1=out_1, out_2=out_2)
         else:
             raise NotImplementedError
 

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("--gamma", default=2., type=float, help="gamma")
     parser.add_argument("--gamma_lambd", default=1., type=float, help="gamma lambd")
     parser.add_argument("--projection_mu", default=1., type=float, help="projection mu")
-    parser.add_argument("--loss_type", default="origin", type=str, help="nt_xent, origin, sum, product or spectral")
+    parser.add_argument("--loss_type", default="origin", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
     parser.add_argument("--temperature", default=0.1, type=float, help="temperature parameter in training loss")
     
     # transformation
@@ -40,7 +40,6 @@ if __name__ == "__main__":
     parser.add_argument("--jitter_strength", type=float, default=0.5, help="jitter strength")
 
     # training
-    #parser.add_argument("--max_t", default=400, type=int, help="max epoch to report")
     parser.add_argument("--num_samples", default=100, type=int, help="number of samples")
     parser.add_argument("--online_ft", default=False, action="store_true")
     parser.add_argument("--val_split", type=float, default=0.15, help="percentage of train data that is used for validation")
