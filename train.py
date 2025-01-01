@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from training.pretraining import pretraining
+from training.tiny_pretraining import tiny_pretraining
 from training.utils.utils import log_msg
 import warnings
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument("--jitter_strength", type=float, default=0.5, help="jitter strength")
 
     # training
-    parser.add_argument("--num_samples", default=100, type=int, help="number of samples")
+    parser.add_argument("--num_samples", default=1000, type=int, help="number of samples")
     parser.add_argument("--online_ft", default=False, action="store_true")
     parser.add_argument("--val_split", type=float, default=0.15, help="percentage of train data that is used for validation")
     parser.add_argument("--max_epochs", default=400, type=int, help="number of total epochs to run")
@@ -55,8 +56,13 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers", default=4, type=int, help="num of workers per GPU")
     parser.add_argument("--fp32", default=True, action="store_true") 
     parser.add_argument("--num_nodes", default=1, type=int, help="number of nodes for training")
+
+    parser.add_argument("--tiny", default=False, help="use tiny model")
     
     args = parser.parse_args()
 
-    log_msg(f"Pretraining {args.arch} on {args.dataset} starting ...")
+    prefix = "Tiny pretraining" if args.tiny else "Pretraining"
+    log_msg(f"{prefix} {args.arch} on {args.dataset} starting ...")
+    if args.tiny:
+        tiny_pretraining({}, args)
     pretraining({}, args)
