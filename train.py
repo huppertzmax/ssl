@@ -65,4 +65,5 @@ if __name__ == "__main__":
     log_msg(f"{prefix} {args.arch} on {args.dataset} starting ...")
     if args.tiny:
         tiny_pretraining({}, args)
-    pretraining({}, args)
+    else:
+        pretraining({}, args)

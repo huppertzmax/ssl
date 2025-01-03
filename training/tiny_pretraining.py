@@ -4,8 +4,6 @@ import numpy
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
-from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
-from pl_bolts.models.self_supervised.simclr.transforms import SimCLREvalDataTransform, SimCLRTrainDataTransform
 
 from training.utils.model_checkpoint import ModelCheckpoint
 from training.models.tiny_extractor import TinyExtractor
@@ -26,30 +24,12 @@ def tiny_pretraining(config, args, isTune=False):
         args.distance_p = numpy.inf
 
     if args.dataset == "cifar10": 
-        dm = TinyCIFAR10DataModule(data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers) 
+        dm = TinyCIFAR10DataModule(data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers, val_split=args.val_split) 
         args.num_samples = dm.num_samples
-        normalization = cifar10_normalization()
     else:
         raise NotImplementedError("other datasets have not been implemented till now")
     
-    print(dir(dm))
-    
-
-    dm.train_transforms = SimCLRTrainDataTransform(
-        input_height=32,  # Standard dimension of CIFAR-10
-        gaussian_blur=args.gaussian_blur,
-        jitter_strength=args.jitter_strength,
-        normalize=normalization,
-    )
-
-    dm.val_transforms = SimCLREvalDataTransform(
-        input_height=32,#dm.dims[-1],
-        gaussian_blur=args.gaussian_blur,
-        jitter_strength=args.jitter_strength,
-        normalize=normalization,
-    )
-
-    model = TinyExtractor()
+    model = TinyExtractor(**args.__dict__)
 
     if args.fast_dev_run == 0:
         lr_monitor = LearningRateMonitor(logging_interval="step")
