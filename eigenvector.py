@@ -3,9 +3,9 @@ import numpy as np
 from scipy.sparse import load_npz
 from scipy.sparse.linalg import eigsh
 
-k = 5  
-path = "data/matrices/sparse_matrix_100_000/block/matrix.npz"
-storage_path = "data/matrices/sparse_matrix_100_000/block/"
+k = 100 
+path = "matrices/generated/sparse_matrix_1_000_000/block/matrix.npz"
+storage_path = "matrices/generated/sparse_matrix_1_000_000/block/"
 
 start_time = time.time()
 sparse_matrix = load_npz(path)
