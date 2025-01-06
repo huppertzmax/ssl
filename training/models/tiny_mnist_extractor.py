@@ -7,8 +7,8 @@ from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pl_bolts.datasets import TrialCIFAR10
 
 from training.losses.spectral_contrastive_loss import spectral_contrastive_loss
-from training.losses.nt_xent_loss import nt_xent_loss
 from training.models.projection import Projection
+from training.models.tiny_mnist_backbone import TinyMNISTBackbone
 
 class TinyMNISTExtractor(pl.LightningModule):
     dataset_cls = TrialCIFAR10
@@ -65,38 +65,12 @@ class TinyMNISTExtractor(pl.LightningModule):
 
         self.train_iters_per_epoch = self.num_samples // self.batch_size
 
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)  # Output: 32x28x28
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # Output: 64x28x28
-        self.pool = nn.MaxPool2d(2, 2)  # Output: 64x14x14
-        self.dropout_conv = nn.Dropout(0.25)
-        
-        self.flatten = nn.Flatten()
-        
-        self.fc1 = nn.Linear(64 * 14 * 14, 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.dropout_fc = nn.Dropout(0.5)
-        
-        self.bn1 = nn.BatchNorm2d(32)
-        self.bn2 = nn.BatchNorm2d(64)
-        self.bn_fc1 = nn.BatchNorm1d(256)
-        self.bn_fc2 = nn.BatchNorm1d(128)
+        self.backbone = TinyMNISTBackbone()
 
         self.projection = Projection(input_dim=64, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
 
     def forward(self, x):
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
-        x = self.pool(x)
-        x = self.dropout_conv(x)
-        
-        x = self.flatten(x)
-        
-        x = F.relu(self.bn_fc1(self.fc1(x)))
-        x = self.dropout_fc(x)
-        x = F.relu(self.bn_fc2(self.fc2(x)))
-        x = self.dropout_fc(x)
-        x = self.fc3(x)
+        x = self.backbone(x)
         return x
 
     def shared_step(self, batch):
@@ -108,9 +82,7 @@ class TinyMNISTExtractor(pl.LightningModule):
         z1 = self.projection(h1)
         z2 = self.projection(h2)
 
-        # TODO change back to spectral_contrastive_loss
         return spectral_contrastive_loss(out_1=z1, out_2=z2)
-        #return nt_xent_loss(z1, z2, 0.1)
     
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
