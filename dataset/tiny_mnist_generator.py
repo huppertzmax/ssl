@@ -3,8 +3,8 @@ from torchvision import datasets, transforms
 import numpy as np
 import os
 
-train_samples_per_class = 1024  # Number of samples per class for training
-val_samples_per_class = 256     # Number of samples per class for validation
+train_samples_per_class = 4096  # Number of samples per class for training
+val_samples_per_class = 512     # Number of samples per class for validation
 output_dir = "./mnist_subset"  # Directory to save the datasets
 
 os.makedirs(output_dir, exist_ok=True)

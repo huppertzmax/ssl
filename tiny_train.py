@@ -11,6 +11,9 @@ if __name__ == "__main__":
     #data 
     parser.add_argument("--dataset", type=str, default="mnist", help="mnist, cifar10")
     parser.add_argument("--data_dir", type=str, default="./dataset/mnist_subset/", help="path to download data")
+    parser.add_argument("--train_subset_name", type=str, default="mnist_train_subset_1024_per_class.pt", help="name of train subset")
+    parser.add_argument("--val_subset_name", type=str, default="mnist_val_subset_512_per_class.pt", help="name of val subset")
+
 
     #model
     parser.add_argument("--arch", default="custom architecture", type=str, help="convnet architecture")

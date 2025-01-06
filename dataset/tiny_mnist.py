@@ -10,12 +10,16 @@ class TinyMNISTDataModule(pl.LightningDataModule):
     def __init__(
         self,
         data_dir: str = "./dataset/mnist_subset/",
+        train_subset_name: str = "mnist_train_subset_1024_per_class.pt",
+        val_subset_name: str = "mnist_val_subset_256_per_class.pt",
         batch_size: int = 32,
         num_workers: int = 4,
         seed: int = 42,
     ):
         super().__init__()
         self.data_dir = data_dir
+        self.train_subset_name = train_subset_name
+        self.val_subset_name = val_subset_name
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.seed = seed
@@ -24,8 +28,8 @@ class TinyMNISTDataModule(pl.LightningDataModule):
 
 
     def prepare_data(self):
-        self.train_dataset = torch.load(self.data_dir + "mnist_train_subset_1024_per_class.pt")
-        self.val_dataset = torch.load(self.data_dir + "mnist_val_subset_256_per_class.pt")
+        self.train_dataset = torch.load(self.data_dir + self.train_subset_name)
+        self.val_dataset = torch.load(self.data_dir + self.val_subset_name)
 
     def setup(self, stage=None):
         if stage == "fit" or stage is None:

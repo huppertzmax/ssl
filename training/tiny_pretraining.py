@@ -25,7 +25,8 @@ def tiny_pretraining(config, args, isTune=False):
         args.num_samples = dm.num_samples
         model = TinyExtractor(**args.__dict__)
     elif args.dataset == "mnist":
-        dm = TinyMNISTDataModule(data_dir=args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers)
+        dm = TinyMNISTDataModule(data_dir=args.data_dir, train_subset_name=args.train_subset_name, val_subset_name=args.val_subset_name, 
+                                 batch_size=args.batch_size, num_workers=args.num_workers)
         model = TinyMNISTExtractor(**args.__dict__)
     else:
         raise NotImplementedError("other datasets have not been implemented till now")
