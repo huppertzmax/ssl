@@ -65,26 +65,38 @@ class TinyMNISTExtractor(pl.LightningModule):
 
         self.train_iters_per_epoch = self.num_samples // self.batch_size
 
-
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)  # 32x32x32
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1) # 64x32x32
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)                  # 64x16x16
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1) # 128x16x16
-        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1) # 256x16x16
-        self.gap = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(256, 64)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)  # Output: 32x28x28
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # Output: 64x28x28
+        self.pool = nn.MaxPool2d(2, 2)  # Output: 64x14x14
+        self.dropout_conv = nn.Dropout(0.25)
+        
+        self.flatten = nn.Flatten()
+        
+        self.fc1 = nn.Linear(64 * 14 * 14, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.dropout_fc = nn.Dropout(0.5)
+        
+        self.bn1 = nn.BatchNorm2d(32)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.bn_fc1 = nn.BatchNorm1d(256)
+        self.bn_fc2 = nn.BatchNorm1d(128)
 
         self.projection = Projection(input_dim=64, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
         x = self.pool(x)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = self.gap(x)
-        x = torch.flatten(x, 1)  
-        x = self.fc(x) 
+        x = self.dropout_conv(x)
+        
+        x = self.flatten(x)
+        
+        x = F.relu(self.bn_fc1(self.fc1(x)))
+        x = self.dropout_fc(x)
+        x = F.relu(self.bn_fc2(self.fc2(x)))
+        x = self.dropout_fc(x)
+        x = self.fc3(x)
         return x
 
     def shared_step(self, batch):
