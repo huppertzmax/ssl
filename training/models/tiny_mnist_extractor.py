@@ -11,15 +11,12 @@ from training.models.projection import Projection
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
 
 class TinyMNISTExtractor(pl.LightningModule):
-    dataset_cls = TrialCIFAR10
-    dims = (3, 32, 32)
-
     def __init__(
         self,
-        gpus: int,
-        num_samples: int,
-        batch_size: int,
-        dataset: str,
+        gpus: int= 1,
+        num_samples: int = 1024,
+        batch_size: int = 256,
+        dataset: str ="mnist",
         num_nodes: int = 1,
         arch: str = "custom architecture",
         hidden_mlp: int = 128,

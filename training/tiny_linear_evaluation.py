@@ -1,16 +1,21 @@
 import wandb
 import torch
+import os
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import WandbLogger
-from pl_bolts.models.self_supervised.ssl_finetuner import SSLFineTuner
+#from pl_bolts.models.self_supervised.ssl_finetuner import SSLFineTuner
 from pl_bolts.datamodules import MNISTDataModule
 from torchvision import transforms
 from pytorch_lightning.callbacks import LearningRateMonitor
 
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
+from training.models.tiny_mnist_extractor import TinyMNISTExtractor
 from training.utils.model_checkpoint import ModelCheckpoint
 from training.utils.utils import log_msg
+from training.utils.finetuner import SSLFineTuner
+from training.utils.ckpt_loading import update_ckpt_dict
+
 
 def tiny_linear_evaluation(config, args):
     args.__dict__.update(config)
@@ -21,16 +26,21 @@ def tiny_linear_evaluation(config, args):
     log_msg(args)
 
     if args.dataset == "mnist":
-        dm = MNISTDataModule(data_dir=args.data_dir, normalize=False, batch_size=args.batch_size, num_workers=args.num_workers)
-        #normalization = transforms.Normalize((0.1307,), (0.3081,)) TODO add normalization to normal pretraining
+        dm = MNISTDataModule(data_dir=args.data_dir, normalize=False, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=False)
     else:
         raise NotImplementedError("other datasets have not been implemented till now")
     
-    dm.train_transforms = transforms.ToTensor()
-    dm.val_transforms = transforms.ToTensor()
-    dm.test_transforms = transforms.ToTensor()
+    dm.train_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    dm.val_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    dm.test_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
 
-    backbone = TinyMNISTBackbone().load_from_checkpoint(args.ckpt_path, strict=False)
+    backbone = TinyMNISTBackbone()
+    backbone.load_state_dict(update_ckpt_dict(args.ckpt_path))
+    #backbone = TinyMNISTExtractor().load_from_checkpoint(args.ckpt_path, strict=True)
+    backbone.eval()
+    for param in backbone.parameters():
+        param.requires_grad = False
+    #backbone = TinyMNISTBackbone().load_from_checkpoint(update_ckpt_dict(args.ckpt_path), strict=False)
 
     tuner = SSLFineTuner( 
         backbone,
