@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 sorted_by_label = True # Whether the dataset should be sorted by label
 chunked_storage = True # Whether the dataset should be stored in chunks, if sorted the the chunks are based on the labels
 h5py_format = False # Whether the dataset should be stored using h5py, otherwise will be stored using pytorch
-train_samples_per_class = 128  # Number of samples per class for training
-num_augmentations = 20 # Number of augmentations per image
+train_samples_per_class = 1024  # Number of samples per class for training
+num_augmentations = 200 # Number of augmentations per image
 val_samples_per_class = 64     # Number of samples per class for validation
 output_dir = "./mnist_subset/chunks" if chunked_storage else "./mnist_subset"  # Directory to save the datasets
 os.makedirs(output_dir, exist_ok=True)
