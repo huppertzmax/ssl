@@ -7,6 +7,9 @@ from torch.nn import functional as F
 from torchmetrics import Accuracy
 
 class SSLFineTuner(LightningModule):
+    '''
+        This is a bug-fixed version of https://github.com/Lightning-Universe/lightning-bolts/blob/master/src/pl_bolts/models/self_supervised/ssl_finetuner.py
+    '''
     def __init__(
         self,
         backbone: torch.nn.Module,
@@ -39,7 +42,7 @@ class SSLFineTuner(LightningModule):
         self.num_classes = num_classes
 
         self.backbone = backbone
-        self.linear_layer = nn.Sequential(nn.BatchNorm1d(in_features), nn.Linear(self.in_features, self.num_classes, bias=True))
+        self.linear_layer = nn.Linear(self.in_features, self.num_classes, bias=True)
 
         # metrics
         self.train_acc = Accuracy(task="multiclass", num_classes=num_classes, top_k=1)
@@ -48,14 +51,10 @@ class SSLFineTuner(LightningModule):
 
     def on_train_epoch_start(self) -> None:
         self.backbone.eval()
-        self.linear_layer.train()
 
     def training_step(self, batch, batch_idx):
         loss, logits, y = self.shared_step(batch)
-        #print(f"loss in training step: {loss.item()}")
         acc = self.train_acc(logits.softmax(-1), y)
-        #print(f"acc in training step: {acc}")
-        #exit()
 
         self.log("train_loss", loss, prog_bar=True)
         self.log("train_acc_step", acc, prog_bar=True)
@@ -88,27 +87,17 @@ class SSLFineTuner(LightningModule):
         if torch.isnan(x).any() or torch.isinf(x).any():
             print("Input data contains NaN or Inf!")
 
-        #print(f"x value: {x[0]}")
-        #print(f"x shape: {x.shape}")
-        #print(f"y values: {y}")
-        #print(f"y shape: {y.shape}")
-
         with torch.no_grad():
             feats = self.backbone(x)
 
-        #print(f"feats values: {feats}")
         feats = feats.view(feats.size(0), -1)
-        #print(f"feats values: {feats}")
 
         logits = self.linear_layer(feats)
         if torch.isnan(logits).any():
             print("Logits contain NaN!")
         if torch.isinf(logits).any():
             print("Logits contain Inf!")
-        #print(f"logits values: {logits}")
-        #print(f"logits shape: {logits.shape}")
         loss = F.cross_entropy(logits, y)
-        #print(f"loss values: {loss}")
         return loss, logits, y
 
     def configure_optimizers(self):
