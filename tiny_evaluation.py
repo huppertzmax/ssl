@@ -19,7 +19,7 @@ if __name__ == "__main__":
     
     # optimization 
     parser.add_argument("--dropout", type=float, default=0.0)
-    parser.add_argument("--learning_rate", type=float, default=0.3)
+    parser.add_argument("--learning_rate", type=float, default=0.1)
     parser.add_argument("--weight_decay", type=float, default=1e-6)
     parser.add_argument("--nesterov", type=bool, default=False)
     parser.add_argument("--scheduler_type", type=str, default="cosine")

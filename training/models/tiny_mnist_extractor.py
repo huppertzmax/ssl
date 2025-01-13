@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
-from pl_bolts.datasets import TrialCIFAR10
 
 from training.losses.spectral_contrastive_loss import spectral_contrastive_loss
 from training.models.projection import Projection
@@ -19,8 +18,8 @@ class TinyMNISTExtractor(pl.LightningModule):
         dataset: str ="mnist",
         num_nodes: int = 1,
         arch: str = "custom architecture",
-        hidden_mlp: int = 128,
-        feat_dim: int = 32,
+        hidden_mlp: int = 32,
+        feat_dim: int = 16,
         warmup_epochs: int = 10,
         max_epochs: int = 50,
         optimizer: str = "adam",
@@ -32,6 +31,7 @@ class TinyMNISTExtractor(pl.LightningModule):
         projection_mu: float=1.0,
         norm_p: float=2.0,
         use_lr_scheduler: bool=False,
+        pre_augmented: bool=True,
         **kwargs
     ):
         super(TinyMNISTExtractor, self).__init__()
@@ -59,19 +59,24 @@ class TinyMNISTExtractor(pl.LightningModule):
         self.learning_rate = learning_rate
         self.warmup_epochs = warmup_epochs
         self.weight_decay = weight_decay
+        self.pre_augmented = pre_augmented
 
         self.train_iters_per_epoch = self.num_samples // self.batch_size
 
         self.backbone = TinyMNISTBackbone()
 
-        self.projection = Projection(input_dim=64, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
+        self.projection = Projection(input_dim=32, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
 
     def forward(self, x):
         x = self.backbone(x)
         return x
 
     def shared_step(self, batch):
-        img1, img2, _ = batch
+        if self.pre_augmented:
+            img, _ = batch 
+            img1, img2 = torch.unbind(img, dim=1)
+        else: 
+            img1, img2, _ = batch
 
         h1 = self(img1)
         h2 = self(img2)

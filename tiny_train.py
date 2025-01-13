@@ -11,9 +11,8 @@ if __name__ == "__main__":
     #data 
     parser.add_argument("--dataset", type=str, default="mnist", help="mnist, cifar10")
     parser.add_argument("--data_dir", type=str, default="./dataset/mnist_subset/", help="path to download data")
-    parser.add_argument("--train_subset_name", type=str, default="mnist_train_subset_1024_per_class.pt", help="name of train subset")
-    parser.add_argument("--val_subset_name", type=str, default="mnist_val_subset_512_per_class.pt", help="name of val subset")
-
+    parser.add_argument("--train_subset_name", type=str, default="mnist_train_subset_1024_per_class_aug_200_chunk_", help="name of train subset")
+    parser.add_argument("--val_subset_name", type=str, default="mnist_val_subset_1024_per_class_aug_200.pt", help="name of val subset")
 
     #model
     parser.add_argument("--arch", default="custom architecture", type=str, help="convnet architecture")
@@ -22,7 +21,7 @@ if __name__ == "__main__":
 
     # optimization 
     parser.add_argument("--weight_decay", default=1e-6, type=float, help="weight decay")
-    parser.add_argument("--learning_rate", default=0.25, type=float, help="base learning rate")
+    parser.add_argument("--learning_rate", default=0.001, type=float, help="base learning rate")
     parser.add_argument("--start_lr", default=0, type=float, help="initial warmup learning rate")
     parser.add_argument("--final_lr", type=float, default=1e-6, help="final learning rate")
     parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
@@ -30,7 +29,7 @@ if __name__ == "__main__":
 
     # loss
     parser.add_argument("--norm_p", default=2., type=float, help="norm p, -1 for inf")
-    parser.add_argument("--loss_type", default="origin", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
+    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
     parser.add_argument("--temperature", default=0.1, type=float, help="temperature parameter in training loss")
     parser.add_argument("--projection_mu", default=1., type=float, help="projection mu")
     
@@ -52,6 +51,8 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers", default=4, type=int, help="num of workers per GPU")
     parser.add_argument("--fp32", default=True, action="store_true") 
     parser.add_argument("--num_nodes", default=1, type=int, help="number of nodes for training")
+    parser.add_argument("--chunked_data", default=True) 
+    parser.add_argument("--pre_augmented", default=True) 
 
     args = parser.parse_args()
 

@@ -22,7 +22,7 @@ def tiny_linear_evaluation(config, args):
     seed_everything(1234)
     
     if args.fast_dev_run == 0:
-        wandb_logger = WandbLogger(project='SSL')
+        wandb_logger = WandbLogger(project='SSL', tags=['evaluation', 'tiny'])
     log_msg(args)
 
     if args.dataset == "mnist":
@@ -36,11 +36,9 @@ def tiny_linear_evaluation(config, args):
 
     backbone = TinyMNISTBackbone()
     backbone.load_state_dict(update_ckpt_dict(args.ckpt_path))
-    #backbone = TinyMNISTExtractor().load_from_checkpoint(args.ckpt_path, strict=True)
     backbone.eval()
     for param in backbone.parameters():
         param.requires_grad = False
-    #backbone = TinyMNISTBackbone().load_from_checkpoint(update_ckpt_dict(args.ckpt_path), strict=False)
 
     tuner = SSLFineTuner( 
         backbone,
