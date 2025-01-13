@@ -1,9 +1,10 @@
+import torch
 from argparse import ArgumentParser
+
 from training.tiny_pretraining import tiny_pretraining
 from training.tiny_linear_evaluation import tiny_linear_evaluation
 from embeddings import calculate_chunk_embedding
 from training.utils.utils import log_msg
-import warnings
 
 if __name__ == "__main__":
 
@@ -79,7 +80,8 @@ if __name__ == "__main__":
         ckpt_path=args.ckpt_path,
         data_path=data_path,
         storage_path=storage_path,
-        num_chunks=10
+        num_chunks=10,
+        device='cuda' if torch.cuda.is_available() else 'cpu'
     )
 
     print("\n\n\n")
