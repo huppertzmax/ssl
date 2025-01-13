@@ -11,10 +11,10 @@ class TinyMNISTBackbone(nn.Module):
         
         self.flatten = nn.Flatten()
         
-        self.fc1 = nn.Linear(64 * 14 * 14, 128)
-        self.fc2 = nn.Linear(128, 64)
+        self.fc1 = nn.Linear(64 * 14 * 14, 64)
+        self.fc2 = nn.Linear(64, 32)
         
-        self.bn_fc2 = nn.BatchNorm1d(64)
+        self.bn_fc2 = nn.BatchNorm1d(32)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))

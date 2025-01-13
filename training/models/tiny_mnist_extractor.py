@@ -65,7 +65,7 @@ class TinyMNISTExtractor(pl.LightningModule):
 
         self.backbone = TinyMNISTBackbone()
 
-        self.projection = Projection(input_dim=64, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
+        self.projection = Projection(input_dim=32, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
 
     def forward(self, x):
         x = self.backbone(x)

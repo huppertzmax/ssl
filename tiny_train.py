@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     #model
     parser.add_argument("--arch", default="custom architecture", type=str, help="convnet architecture")
-    parser.add_argument("--feat_dim", default=32, type=int, help="feature dimension")
-    parser.add_argument("--hidden_mlp", default=128, type=int, help="hidden layer dimension in projection head")
+    parser.add_argument("--feat_dim", default=16, type=int, help="feature dimension")
+    parser.add_argument("--hidden_mlp", default=32, type=int, help="hidden layer dimension in projection head")
 
     # optimization 
     parser.add_argument("--weight_decay", default=1e-6, type=float, help="weight decay")
