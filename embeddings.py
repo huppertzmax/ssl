@@ -1,6 +1,7 @@
 import torch
 import os  
 import time
+import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from argparse import ArgumentParser
 
@@ -38,6 +39,10 @@ def store_embedding(embedding, storage_path, num_samples_per_class, num_augmenta
     torch.save(embedding, file_path)
     chunked_note = "chunk" if chunked else ""
     print(f"Stored embedding {chunked_note} under {file_path}\n")
+
+def store_embedding_numpy(embedding, storage_path, num_samples_per_class, num_augmentations):
+    file_path = storage_path + f"/embedding_{num_samples_per_class}_{num_augmentations}"
+    np.save(file_path, embedding.cpu().numpy())
 
 def calculate_chunk_embedding(num_augmentations, num_samples_per_class, ckpt_path, data_path, storage_path, num_chunks, device):
     backbone = load_backbone(ckpt_path, device)
@@ -78,7 +83,8 @@ def calculate_chunk_embedding(num_augmentations, num_samples_per_class, ckpt_pat
     print(f"\nShape of full produced embedding: {full_embedding.shape}")
     end_time_full = time.time()
     print(f"Calculated full embedding in: {end_time_full - start_time_full:.6f} seconds\n")
-    store_embedding(full_embedding, storage_path, num_samples_per_class, num_augmentations)
+    store_embedding(full_embedding, storage_path, num_samples_per_class, num_augmentations) 
+    store_embedding_numpy(full_embedding, storage_path, num_samples_per_class, num_augmentations)
 
 def calculate_embedding(num_augmentations, num_samples_per_class, ckpt_path, data_path, storage_path, device):
     backbone = load_backbone(ckpt_path, device)
