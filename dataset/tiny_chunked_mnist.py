@@ -1,7 +1,6 @@
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, TensorDataset
 import pytorch_lightning as pl
-import random
 
 class MultiFileLazyDataset(Dataset):
     def __init__(self, file_paths):
@@ -25,42 +24,36 @@ class MultiFileLazyDataset(Dataset):
         images, labels = self.file_data[file_idx]
         return images[sample_idx], labels[sample_idx]
 
-class MultiFileDataModule(pl.LightningDataModule):
-    def __init__(self, file_paths, batch_size, num_workers=4):
+class TinyChunkedMNISTDataModule(pl.LightningDataModule):
+    def __init__(self, data_dir, batch_size, train_subset, val_subset, num_workers=4,):
         super().__init__()
-        self.file_paths = file_paths
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.data_dir = data_dir
+        self.train_subset = train_subset
+        self.val_subset = val_subset, 
+        self.file_paths = [f"{self.data_dir}chunks/{self.train_subset}{i}.pt" for i in range(10)]
+        print("Using chunks of those files: ", self.file_paths)
 
     def setup(self, stage=None):
-        self.dataset = MultiFileLazyDataset(self.file_paths)
+        self.train_dataset = MultiFileLazyDataset(self.file_paths)
+        file_path = f"{self.data_dir}chunks/{self.val_subset[0]}"
+        print(file_path)
+        self.val_dataset = torch.load(file_path)
+        self.val_dataset = TensorDataset(*self.val_dataset)
 
     def train_dataloader(self):
         return DataLoader(
-            self.dataset,
+            self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
             pin_memory=True
         )
-
-base_path = "./mnist_subset/chunks/mnist_train_subset_1024_per_class_aug_200_chunk_"
-file_paths = [f"{base_path}{i}.pt" for i in range(10)]
-print(file_paths)
-batch_size = 256
-
-data_module = MultiFileDataModule(file_paths, batch_size)
-data_module.setup()
-
-train_loader = data_module.train_dataloader()
-
-counter = 0
-print(len(train_loader))
-for batch in train_loader:
-    images, labels = batch
-    if counter % 100 == 0:
-        print("Batch: ", counter)
-        print(images.shape, labels.shape)
-        print(labels.tolist())
-        print("\n")
-    counter += 1 
+    
+    def val_dataloader(self):
+        return DataLoader(self.val_dataset, 
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers
+        )
