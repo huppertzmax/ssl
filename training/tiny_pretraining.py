@@ -40,7 +40,7 @@ def tiny_pretraining(config, args, isTune=False):
     
     if args.fast_dev_run == 0:
         lr_monitor = LearningRateMonitor(logging_interval="step")
-        model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss", dirpath=f"results/{wandb.run.name}/")
+        model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=1, monitor="val_loss", dirpath=f"results/pretraining/{wandb.run.name}/")
         callbacks = [model_checkpoint, lr_monitor]
     else:
         callbacks = [] 

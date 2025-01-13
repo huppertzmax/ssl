@@ -11,7 +11,7 @@ class Projection(nn.Module):
         self.norm_p = norm_p
         self.mu = mu
 
-        print(input_dim, output_dim, hidden_dim)
+        print(f"Projection head dimensions: input {input_dim}, output {output_dim}, hidden {hidden_dim}")
         self.model = nn.Sequential(
             nn.Linear(self.input_dim, self.hidden_dim),
             nn.BatchNorm1d(self.hidden_dim),

@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     #model
     parser.add_argument("--arch", default="custom architecture", type=str, help="convnet architecture")
-    parser.add_argument("--feat_dim", default=16, type=int, help="feature dimension")
+    parser.add_argument("--feat_dim", default=16, type=int, help="feature dimension used as output of the projection head")
     parser.add_argument("--hidden_mlp", default=32, type=int, help="hidden layer dimension in projection head")
 
     # optimization 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     log_msg(f"Tiny pretraining {args.arch} on {args.dataset} starting ...")
     run_name = tiny_pretraining({}, args)
 
-    args.ckpt_path = f"results/{run_name}/last.ckpt"
+    args.ckpt_path = f"results/pretraining/{run_name}/last.ckpt"
     args.data_dir = "./dataset"
     args.batch_size = args.eval_batch_size
     # TODO learning rate adjustments?!
