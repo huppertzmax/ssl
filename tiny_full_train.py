@@ -61,6 +61,7 @@ if __name__ == "__main__":
     run_name = tiny_pretraining({}, args)
 
     args.ckpt_path = f"results/pretraining/{run_name}/last.ckpt"
+    args.run_name = run_name
     args.data_dir = "./dataset"
     args.batch_size = args.eval_batch_size
     # TODO learning rate adjustments?!

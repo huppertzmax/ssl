@@ -4,13 +4,11 @@ import os
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import WandbLogger
-#from pl_bolts.models.self_supervised.ssl_finetuner import SSLFineTuner
 from pl_bolts.datamodules import MNISTDataModule
 from torchvision import transforms
 from pytorch_lightning.callbacks import LearningRateMonitor
 
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
-from training.models.tiny_mnist_extractor import TinyMNISTExtractor
 from training.utils.model_checkpoint import ModelCheckpoint
 from training.utils.utils import log_msg
 from training.utils.finetuner import SSLFineTuner
@@ -22,7 +20,8 @@ def tiny_linear_evaluation(config, args):
     seed_everything(1234)
     
     if args.fast_dev_run == 0:
-        wandb_logger = WandbLogger(project='SSL', tags=['evaluation', 'tiny'])
+        name = args.run_name if args.run_name else None
+        wandb_logger = WandbLogger(project='SSL', tags=['evaluation', 'tiny'], name=name)
     log_msg(args)
 
     if args.dataset == "mnist":
