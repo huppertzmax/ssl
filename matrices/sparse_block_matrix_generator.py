@@ -75,6 +75,10 @@ def generate(block_type, num_samples, num_augs):
         n = args.num_samples_per_class * args.num_aug_per_class * 10
         n_blocks = num_samples * 10
         value = 1./(num_samples * 10 *num_augs*num_augs)
+    elif args.block_type == "supervised":
+        n = args.num_aug_per_class * 10
+        n_blocks = 10
+        value = 1./(10 *num_augs*num_augs)
     
     n_formatted = f"{n:,}".replace(",", "_")
     os.makedirs(f"./generated/sparse_matrix_{n_formatted}/{args.block_type}_block", exist_ok=True)
