@@ -4,14 +4,14 @@ from training.losses.acos_kernel_loss import acos_kernel_loss
 from training.losses.nt_xent_loss import nt_xent_loss
 from training.losses.spectral_contrastive_loss import spectral_contrastive_loss
 
-def loss(out_1, out_2, temperature, gamma, gamma_lambd, distance_p, loss_type, acos_order, feat_dim):
+def loss(out_1, out_2, temperature=0.1, gamma=2.0, gamma_lambd=1.0, distance_p=2.0, loss_type="nt_xent", acos_order=0, feat_dim=32):
     if acos_order > 0:
         loss = acos_kernel_loss(out_1=out_1, out_2=out_2, temperature=temperature, acos_order=acos_order)
     else:
         if loss_type == "sum":
             loss = (
                 gamma_loss(out_1=out_1, out_2=out_2, gamma=gamma, temperature=temperature, distance_p=distance_p) * gamma_lambd +
-                gamma_loss(out_1=out_1, out_2=out_2, gamma=2.0, temperature=temperature) * (1. - gamma_lambd)
+                gamma_loss(out_1=out_1, out_2=out_2, gamma=2.0, temperature=temperature, distance_p=distance_p) * (1. - gamma_lambd)
             )
         elif loss_type == "origin":
             loss = gamma_loss(out_1=out_1, out_2=out_2, gamma=gamma, temperature=temperature, distance_p=distance_p)

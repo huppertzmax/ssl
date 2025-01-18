@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from pl_bolts.optimizers.lars import LARS
 from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 
-from training.losses.spectral_contrastive_loss import spectral_contrastive_loss
+from training.losses.loss import loss
 from training.models.projection import Projection
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
 
@@ -84,7 +84,7 @@ class TinyMNISTExtractor(pl.LightningModule):
         z1 = self.projection(h1)
         z2 = self.projection(h2)
 
-        return spectral_contrastive_loss(out_1=z1, out_2=z2)
+        return loss(out_1=z1, out_2=z2, loss_type=self.loss_type)
     
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
