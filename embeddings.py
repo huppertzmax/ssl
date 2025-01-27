@@ -83,7 +83,6 @@ def calculate_chunk_embedding(num_augmentations, num_samples_per_class, ckpt_pat
     print(f"\nShape of full produced embedding: {full_embedding.shape}")
     end_time_full = time.time()
     print(f"Calculated full embedding in: {end_time_full - start_time_full:.6f} seconds\n")
-    store_embedding(full_embedding, storage_path, num_samples_per_class, num_augmentations) 
     store_embedding_numpy(full_embedding, storage_path, num_samples_per_class, num_augmentations)
 
 def calculate_embedding(num_augmentations, num_samples_per_class, ckpt_path, data_path, storage_path, device):
