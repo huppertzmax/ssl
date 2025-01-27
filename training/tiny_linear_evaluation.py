@@ -1,6 +1,4 @@
 import wandb
-import torch
-import os
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import WandbLogger
@@ -52,6 +50,7 @@ def tiny_linear_evaluation(config, args):
         scheduler_type=args.scheduler_type,
         gamma=args.gamma,
         final_lr=args.final_lr,
+        extended_metrics=args.extended_metrics,
     )
 
     if args.fast_dev_run == 0:
@@ -77,4 +76,7 @@ def tiny_linear_evaluation(config, args):
     trainer.test(datamodule=dm)
 
     if args.fast_dev_run == 0:
+        if args.extended_metrics:
+            cm = tuner.test_confusion_matrix(wandb.run.name)
+            wandb.log({"confusion_matrix":cm})
         wandb.finish()

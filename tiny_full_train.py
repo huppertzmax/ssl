@@ -55,6 +55,10 @@ if __name__ == "__main__":
     parser.add_argument("--nesterov", type=bool, default=False)
     parser.add_argument("--scheduler_type", type=str, default="cosine")
     parser.add_argument("--gamma", type=float, default=0.1)
+    parser.add_argument("--extended_metrics", type=bool, default=True)
+    parser.add_argument("--k_folds", default=5, type=int, help="number k-folds")
+    parser.add_argument("--num_classes", default=10, type=int, help="number of classes in dataset")
+
 
     args = parser.parse_args()
 
@@ -65,7 +69,6 @@ if __name__ == "__main__":
     args.run_name = run_name
     args.data_dir = "./dataset"
     args.batch_size = args.eval_batch_size
-    # TODO learning rate adjustments?!
 
     print("\n\n\n")
     log_msg(f"Tiny linear evaluation {args.arch} with checkpoint {args.ckpt_path} on {args.dataset} starting ...")
