@@ -49,7 +49,7 @@ def tiny_pretraining(config, args, isTune=False):
         "max_epochs": args.max_epochs,
         "devices": args.gpus,
         "num_nodes": args.num_nodes,
-        "accelerator": "gpu",
+        "accelerator": args.accelerator,
         "sync_batchnorm": True if args.gpus > 1 else False,
         "precision": 32 if args.fp32 else 16,
         "callbacks": callbacks,
