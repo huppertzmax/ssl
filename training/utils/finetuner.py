@@ -61,9 +61,9 @@ class SSLFineTuner(LightningModule):
         self.val_acc = Accuracy(task="multiclass", num_classes=num_classes, compute_on_step=False, top_k=1)
         self.test_acc = Accuracy(task="multiclass", num_classes=num_classes, compute_on_step=False, top_k=1)
         if self.extended_metrics:
-            self.train_f1 = F1Score(task="multiclass", num_classes=num_classes, average="micro", top_k=1)
-            self.val_f1 = F1Score(task="multiclass", num_classes=num_classes, compute_on_step=False, average="micro", top_k=1)
-            self.test_f1 = F1Score(task="multiclass", num_classes=num_classes, compute_on_step=False, average="micro", top_k=1)
+            self.train_f1 = F1Score(task="multiclass", num_classes=self.num_classes, average="macro", top_k=1)
+            self.val_f1 = F1Score(task="multiclass", num_classes=self.num_classes, compute_on_step=False, average="macro", top_k=1)
+            self.test_f1 = F1Score(task="multiclass", num_classes=self.num_classes, compute_on_step=False, average="macro", top_k=1)
 
     def on_train_epoch_start(self) -> None:
         self.backbone.eval()
