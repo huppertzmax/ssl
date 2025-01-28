@@ -8,6 +8,7 @@ from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from training.losses.loss import loss
 from training.models.projection import Projection
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
+from training.utils.heat_kernel import compute_adjacency_matrix, compute_heat_kernel
 
 class TinyMNISTExtractor(pl.LightningModule):
     def __init__(
@@ -32,6 +33,8 @@ class TinyMNISTExtractor(pl.LightningModule):
         norm_p: float=2.0,
         use_lr_scheduler: bool=False,
         pre_augmented: bool=True,
+        constrained_rqmin: bool=True, 
+        penalty_constrained: bool=False,
         **kwargs
     ):
         super(TinyMNISTExtractor, self).__init__()
@@ -60,16 +63,34 @@ class TinyMNISTExtractor(pl.LightningModule):
         self.warmup_epochs = warmup_epochs
         self.weight_decay = weight_decay
         self.pre_augmented = pre_augmented
+        self.constrained_rqmin = constrained_rqmin
+        self.penalty_constrained = penalty_constrained
 
         self.train_iters_per_epoch = self.num_samples // self.batch_size
 
         self.backbone = TinyMNISTBackbone()
 
         self.projection = Projection(input_dim=32, hidden_dim=self.hidden_mlp, output_dim=self.feat_dim, norm_p=self.norm_p, mu=self.projection_mu)
+        
+        adj_matrix = compute_adjacency_matrix(self.batch_size, device='cuda' if torch.cuda.is_available() else 'cpu')
+        self.heat_kernel = compute_heat_kernel(adj_matrix, t=1., device='cuda' if torch.cuda.is_available() else 'cpu') #TODO figure hyperparameter t out
 
     def forward(self, x):
         x = self.backbone(x)
         return x
+    
+    def project_orthogonality(self, Z): 
+        U, _, Vt = torch.linalg.svd(Z, full_matrices=False) 
+        return U @ Vt 
+
+    def project_zero_mean(self, Z): 
+        mean = Z.mean(dim=0, keepdim=True) 
+        return Z - mean 
+
+    def project_constraints(self, Z): 
+        Z = self.project_zero_mean(Z) 
+        Z = self.project_orthogonality(Z) 
+        return Z 
 
     def shared_step(self, batch):
         if self.pre_augmented:
@@ -84,15 +105,29 @@ class TinyMNISTExtractor(pl.LightningModule):
         z1 = self.projection(h1)
         z2 = self.projection(h2)
 
-        return loss(out_1=z1, out_2=z2, loss_type=self.loss_type)
-    
+        if self.constrained_rqmin:
+            z1 = self.project_constraints(z1)
+            z2 = self.project_constraints(z2) 
+
+        return loss(out_1=z1, out_2=z2, loss_type=self.loss_type, heat_kernel=self.heat_kernel, penalty_constrained=self.penalty_constrained)
+
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
+        if self.loss_type == "rq_min" and self.penalty_constrained:
+            loss, trace_term, orthogonality_term, centering_term = loss
+            self.log("trace_term", trace_term)
+            self.log("orthogonality_term", orthogonality_term)
+            self.log("centering_term", centering_term)
         self.log("train_loss", loss)
         return loss
     
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
+        if self.loss_type == "rq_min" and self.penalty_constrained:
+            loss, trace_term, orthogonality_term, centering_term = loss
+            self.log("val_trace_term", trace_term)
+            self.log("val_orthogonality_term", orthogonality_term)
+            self.log("val_centering_term", centering_term)
         self.log("val_loss", loss, on_epoch=True, on_step=False, sync_dist=True)
         return loss
 

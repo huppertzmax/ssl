@@ -26,6 +26,8 @@ if __name__ == "__main__":
     parser.add_argument("--final_lr", type=float, default=1e-6, help="final learning rate")
     parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
     parser.add_argument("--use_lr_scheduler", default=False, help="use lr scheduler")
+    parser.add_argument("--penalty_constrained", default=False, action="store_true")
+    parser.add_argument("--constrained_rqmin", default=True, action="store_false")
 
     # loss
     parser.add_argument("--norm_p", default=2., type=float, help="norm p, -1 for inf")

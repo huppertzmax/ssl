@@ -29,6 +29,8 @@ if __name__ == "__main__":
     parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
     parser.add_argument("--use_lr_scheduler", default=False, help="use lr scheduler")
     parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
+    parser.add_argument("--penalty_constrained", default=False, action="store_true")
+    parser.add_argument("--constrained_rqmin", default=True, action="store_false")
 
     # training
     parser.add_argument("--num_samples", default=1024, type=int, help="number of samples")
@@ -55,7 +57,8 @@ if __name__ == "__main__":
     parser.add_argument("--nesterov", type=bool, default=False)
     parser.add_argument("--scheduler_type", type=str, default="cosine")
     parser.add_argument("--gamma", type=float, default=0.1)
-    parser.add_argument("--extended_metrics", type=bool, default=True)
+    parser.add_argument("--extended_metrics", default=True, action='store_false')
+    parser.add_argument("--train_majority", default=False, action='store_true')
     parser.add_argument("--k_folds", default=5, type=int, help="number k-folds")
     parser.add_argument("--num_classes", default=10, type=int, help="number of classes in dataset")
 
