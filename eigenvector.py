@@ -11,16 +11,16 @@ def load_matrix(path):
     print(f"Matrix loaded from: {path} in: {end_time - start_time:.6f} seconds\n")
     return sparse_matrix
 
-def calculate_k_eigenvectors(matrix, k, storage_path):
+def calculate_k_eigenvectors(matrix, k, storage_path, which):
     start_time = time.time()
-    eigenvalues, eigenvectors = eigsh(matrix, k=k, which='LM') 
+    eigenvalues, eigenvectors = eigsh(matrix, k=k, which=which) 
     end_time = time.time()
     print(f"Runtime for {k} first eigenvectors calculation: {end_time - start_time:.6f} seconds\n")
     print(eigenvalues)
     print(f"Eigenvalues shape: {eigenvalues.shape}")
     print(f"Eigenvectors shape: {eigenvectors.shape}")
-    np.save(storage_path + f"eigenvalues_k_{k}.npy", eigenvalues)
-    np.save(storage_path + f"eigenvectors_k_{k}.npy", eigenvectors)
+    np.save(storage_path + f"eigenvalues_k_{k}_{which}.npy", eigenvalues)
+    np.save(storage_path + f"eigenvectors_k_{k}_{which}.npy", eigenvectors)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -31,4 +31,4 @@ if __name__ == "__main__":
     print(f"Args:  {args}\n")
 
     matrix = load_matrix(args.base_path + args.matrix_name)
-    calculate_k_eigenvectors(matrix, args.num_k, args.base_path)
+    calculate_k_eigenvectors(matrix, args.num_k, args.base_path, 'LM')
