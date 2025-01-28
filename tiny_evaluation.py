@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_samples", default=100, type=int, help="number of samples")
     parser.add_argument("--k_folds", default=5, type=int, help="number k-folds")
     parser.add_argument("--extended_metrics", default=True, action='store_false')
-    parser.add_argument("--train_majority", default=True, action='store_false')
+    parser.add_argument("--train_majority", default=False, action='store_true')
     parser.add_argument("--num_classes", default=10, type=int, help="number of classes in dataset")
 
     # system
@@ -45,7 +45,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    args.run_name = "test_kFold"
 
     log_msg(f"Tiny linear evaluation {args.arch} with checkpoint {args.ckpt_path} on {args.dataset} starting ...")
     if args.k_folds > 1:

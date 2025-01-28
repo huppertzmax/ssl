@@ -87,14 +87,14 @@ def tiny_kfold_linear_evaluation(config, args):
 
         trainer.fit(tuner, dm)
         test_results = trainer.test(datamodule=dm)
-        print(f"{test_results}\n")
         test_accuracies.append(test_results[0]["test_acc"])
 
         if args.extended_metrics:
             test_f1_values.append(test_results[0]["test_f1"])
             test_losses.append(test_results[0]["test_loss"])
-            cm = tuner.test_confusion_matrix(wandb.run.name, suffix=f"_fold_{fold_index}")
-            wandb.log({"confusion_matrix":cm})
+            if args.fast_dev_run == 0:
+                cm = tuner.test_confusion_matrix(wandb.run.name, suffix=f"_fold_{fold_index}")
+                wandb.log({"confusion_matrix":cm})
     
     if args.fast_dev_run == 0:
         wandb.log({"test_acc_avg":np.mean(test_accuracies)})
