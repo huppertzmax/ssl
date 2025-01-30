@@ -113,7 +113,7 @@ class TinyMNISTExtractor(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-        if self.loss_type == "rq_min" and self.penalty_constrained:
+        if self.loss_type == "rq_min":
             loss, trace_term, orthogonality_term, centering_term = loss
             self.log("trace_term", trace_term)
             self.log("orthogonality_term", orthogonality_term)
@@ -123,7 +123,7 @@ class TinyMNISTExtractor(pl.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-        if self.loss_type == "rq_min" and self.penalty_constrained:
+        if self.loss_type == "rq_min":
             loss, trace_term, orthogonality_term, centering_term = loss
             self.log("val_trace_term", trace_term)
             self.log("val_orthogonality_term", orthogonality_term)

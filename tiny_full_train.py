@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 
 from training.tiny_pretraining import tiny_pretraining
 from training.tiny_linear_evaluation import tiny_linear_evaluation
+from training.tiny_kfold_linear_evaluation import tiny_kfold_linear_evaluation
 from embeddings import calculate_chunk_embedding
 from training.utils.utils import log_msg
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--final_lr", type=float, default=1e-6, help="final learning rate")
     parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
     parser.add_argument("--use_lr_scheduler", default=False, help="use lr scheduler")
-    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
+    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive, spectral or rq_min")
     parser.add_argument("--penalty_constrained", default=False, action="store_true")
     parser.add_argument("--constrained_rqmin", default=True, action="store_false")
 
@@ -75,7 +76,11 @@ if __name__ == "__main__":
 
     print("\n\n\n")
     log_msg(f"Tiny linear evaluation {args.arch} with checkpoint {args.ckpt_path} on {args.dataset} starting ...")
-    tiny_linear_evaluation({}, args)
+    if args.k_folds > 1:
+        print(f"Linear evaluation performed using {args.k_folds} folds\n")
+        tiny_kfold_linear_evaluation({}, args)
+    else: 
+        tiny_linear_evaluation({}, args)
 
     num_augmentations = 200
     data_path = f"./dataset/mnist_subset/chunks/mnist_train_subset_{args.num_samples}_per_class_aug_{num_augmentations}"
