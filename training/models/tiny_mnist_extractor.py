@@ -8,7 +8,7 @@ from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from training.losses.loss import loss
 from training.models.projection import Projection
 from training.models.tiny_mnist_backbone import TinyMNISTBackbone
-from training.utils.heat_kernel import compute_adjacency_matrix, compute_heat_kernel
+from training.utils.loss_utils import compute_adjacency_matrix, compute_heat_kernel, compute_graph_laplacian
 
 class TinyMNISTExtractor(pl.LightningModule):
     def __init__(
@@ -74,6 +74,7 @@ class TinyMNISTExtractor(pl.LightningModule):
         
         adj_matrix = compute_adjacency_matrix(self.batch_size, device='cuda' if torch.cuda.is_available() else 'cpu')
         self.heat_kernel = compute_heat_kernel(adj_matrix, t=1., device='cuda' if torch.cuda.is_available() else 'cpu') #TODO figure hyperparameter t out
+        self.graph_laplacian = compute_graph_laplacian(adj_matrix, device='cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, x):
         x = self.backbone(x)
@@ -109,7 +110,7 @@ class TinyMNISTExtractor(pl.LightningModule):
             z1 = self.project_constraints(z1)
             z2 = self.project_constraints(z2) 
 
-        return loss(out_1=z1, out_2=z2, loss_type=self.loss_type, heat_kernel=self.heat_kernel, penalty_constrained=self.penalty_constrained)
+        return loss(out_1=z1, out_2=z2, loss_type=self.loss_type, heat_kernel=self.heat_kernel, penalty_constrained=self.penalty_constrained, graph_laplacian=self.graph_laplacian)
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
@@ -118,6 +119,10 @@ class TinyMNISTExtractor(pl.LightningModule):
             self.log("trace_term", trace_term)
             self.log("orthogonality_term", orthogonality_term)
             self.log("centering_term", centering_term)
+        elif self.loss_type == "kernel_infonce":
+            loss, trace_term, regularization_term = loss
+            self.log("trace_term", trace_term)
+            self.log("regularization_term", regularization_term)
         self.log("train_loss", loss)
         return loss
     
@@ -128,6 +133,10 @@ class TinyMNISTExtractor(pl.LightningModule):
             self.log("val_trace_term", trace_term)
             self.log("val_orthogonality_term", orthogonality_term)
             self.log("val_centering_term", centering_term)
+        elif self.loss_type == "kernel_infonce":
+            loss, trace_term, regularization_term = loss
+            self.log("val_trace_term", trace_term)
+            self.log("val_regularization_term", regularization_term)
         self.log("val_loss", loss, on_epoch=True, on_step=False, sync_dist=True)
         return loss
 

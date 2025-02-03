@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--final_lr", type=float, default=1e-6, help="final learning rate")
     parser.add_argument("--optimizer", default="adam", type=str, help="choose between adam/lars")
     parser.add_argument("--use_lr_scheduler", default=False, help="use lr scheduler")
-    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive, spectral or rq_min")
+    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive, spectral, rq_min or kernel_infonce")
     parser.add_argument("--penalty_constrained", default=False, action="store_true")
     parser.add_argument("--constrained_rqmin", default=True, action="store_false")
 

@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     # loss
     parser.add_argument("--norm_p", default=2., type=float, help="norm p, -1 for inf")
-    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive or spectral")
+    parser.add_argument("--loss_type", default="spectral_contrastive", type=str, help="nt_xent, origin, sum, product, spectral_contrastive, spectral, rq_min or kernel_infonce")
     parser.add_argument("--temperature", default=0.1, type=float, help="temperature parameter in training loss")
     parser.add_argument("--projection_mu", default=1., type=float, help="projection mu")
     
